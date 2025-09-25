@@ -48,7 +48,7 @@ const iconsLinks: IconLink[] = [
     },
 ];
 
-export default function Home() {
+export default function Career() {
     return (
         <>
             <Head title="Welcome">

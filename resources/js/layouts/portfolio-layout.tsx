@@ -14,15 +14,15 @@ const menuComponents: MenuComponent[] = [
     },
     {
         title: 'Career',
-        href: '/',
+        href: '/career',
     },
     {
-        title: 'Contact me',
+        title: 'Contact',
         href: '/',
     },
 ];
 
-const columnClasses = ' px-4 md:px-10 lg:px-20 xl:px-40';
+const columnClasses = ' px-4 md:px-20 lg:px-40 xl:px-80';
 
 export default function PortfolioLayout({
     children,
@@ -39,12 +39,12 @@ export default function PortfolioLayout({
                     columnClasses
                 }
             >
-                <div className={'px-4'}>
+                <div>
                     <Navbar menuComponents={menuComponents} />
                 </div>
 
-                <div className={'px-4'}>
-                    <AppearanceTabs className={'px-4'} />
+                <div>
+                    <AppearanceTabs />
                 </div>
             </div>
             <div className={columnClasses}>{children}</div>

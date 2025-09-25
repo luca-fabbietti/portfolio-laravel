@@ -23,7 +23,8 @@ export default function Navbar({
                             <NavigationMenuLink
                                 asChild
                                 className={
-                                    navigationMenuTriggerStyle() + ' font-bold'
+                                    navigationMenuTriggerStyle() +
+                                    ' px-2! font-bold'
                                 }
                             >
                                 <Link href={element.href}>{element.title}</Link>
