@@ -1,156 +1,80 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
 import PortfolioLayout from '@/layouts/portfolio-layout';
 import { Head } from '@inertiajs/react';
-import { BadgeCheckIcon } from 'lucide-react';
-import React from 'react';
-import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { MdEmail } from 'react-icons/md';
+import { IoDocumentTextOutline } from 'react-icons/io5';
 
-interface IconLink {
-    href: string;
-    label: string;
-    icon: React.JSX.Element;
+interface CareerProps {
+    company: string;
+    role: string;
+    period: string;
+    description: string;
 }
 
-const iconsLinks: IconLink[] = [
+const careerData: CareerProps[] = [
     {
-        href: 'https://linkedin.com/in/luca-fabbietti',
-        label: 'LinkedIn',
-        icon: (
-            <FaLinkedin
-                className={'size-8 fill-foreground dark:fill-foreground'}
-            />
-        ),
+        company: 'Tech Solutions Inc.',
+        role: 'Software Engineer',
+        period: 'Jan 2020 - Present',
+        description:
+            'Developed and maintained web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.',
     },
     {
-        href: 'https://github.com/luca-fabbietti',
-        label: 'GitHub',
-        icon: (
-            <FaGithub
-                className={'size-8 fill-foreground dark:fill-foreground'}
-            />
-        ),
+        company: 'Tech Solutions Inc.',
+        role: 'Software Engineer',
+        period: 'Jan 2020 - Present',
+        description:
+            'Developed and maintained web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.',
     },
     {
-        href: '/contact',
-        label: 'E-mail',
-        icon: (
-            <MdEmail
-                className={'size-8 fill-foreground dark:fill-foreground'}
-            />
-        ),
+        company: 'Tech Solutions Inc.',
+        role: 'Software Engineer',
+        period: 'Jan 2020 - Present',
+        description:
+            'Developed and maintained web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.',
     },
 ];
 
 export default function Career() {
     return (
         <>
-            <Head title="Welcome">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link
-                    href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
-                    rel="stylesheet"
-                />
-            </Head>
+            <Head title="Welcome" />
             <PortfolioLayout>
                 <div
                     className={
                         'flex flex-col items-start justify-center gap-4 py-20 text-left'
                     }
                 >
-                    <div className={'flex items-center justify-center'}>
-                        <Avatar className={'size-28 border shadow'}>
-                            <AvatarImage src="/android-chrome-512x512.png" />
-                            <AvatarFallback>LF</AvatarFallback>
-                        </Avatar>
+                    <div className={'flex items-center justify-between gap-4'}>
+                        <IoDocumentTextOutline className={'size-8'} />
+                        <h1 className={'text-3xl font-bold'}>Career & Works</h1>
                     </div>
-                    <div className={'flex items-center justify-center gap-4'}>
-                        <h1 className={'text-3xl font-black'}>
-                            Luca Fabbietti
-                        </h1>
-                        <Button
-                            variant="default"
-                            size={null}
-                            className="hidden rounded-full px-2 py-1 font-mono text-xs font-bold transition-all duration-300 ease-in-out hover:scale-105 md:block"
-                            asChild
-                        >
-                            <a
-                                href="https://linkedin.com/in/luca-fabbietti"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hidden md:flex"
-                            >
-                                Available
-                            </a>
-                        </Button>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <a
-                                    href="https://linkedin.com/in/luca-fabbietti"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={'Available'}
-                                    className="flex rounded-full transition-all duration-300 ease-in-out hover:scale-105 md:hidden"
-                                >
-                                    <BadgeCheckIcon className="size-6 fill-blue-300 stroke-[1.5] dark:fill-blue-400" />
-                                </a>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{'Available'}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </div>
-                    <div className={'flex items-center justify-center'}>
-                        <p
-                            className={
-                                'max-w-2xl text-lg font-medium text-muted-foreground'
-                            }
-                        >
-                            Hi, I’m Luca, a Back-end & DevOps Developer with 4+
-                            years of experience. I craft resilient services and
-                            design reliable databases to keep applications
-                            running smoothly. In DevOps, I manage systems,
-                            servers, containers, logs, and CI/CD pipelines,
-                            ensuring robust, seamless infrastructure. I’m
-                            passionate about building powerful, user-friendly
-                            products. Let’s connect and talk about our shared
-                            passion for creating beautiful digital experiences.
-                        </p>
-                    </div>
-                    <div className={'flex items-center justify-center gap-4'}>
-                        {iconsLinks.map((iconLink) => {
-                            return <IconLinkComponent iconLink={iconLink} />;
-                        })}
-                    </div>
+                    {careerData.map((career) => (
+                        <CareerEntry
+                            key={career.company}
+                            careerProps={career}
+                        />
+                    ))}
                 </div>
             </PortfolioLayout>
         </>
     );
 }
 
-function IconLinkComponent({ iconLink: iconLink }: { iconLink: IconLink }) {
+function CareerEntry({ careerProps }: { careerProps: CareerProps }) {
     return (
-        <Button
-            variant="outline"
-            key={iconLink.href}
-            className={'h-auto! rounded-md border border-ring p-2!'}
-            onClick={() =>
-                window.open(iconLink.href, '_blank', 'noopener,noreferrer')
+        <div
+            className={
+                'relative flex flex-col items-start border-l-2 border-ring pl-4'
             }
-            aria-label={iconLink.label}
         >
-            <div className={'flex items-center justify-center gap-2'}>
-                {iconLink.icon}
-                <p className={'hidden text-sm font-bold md:block'}>
-                    {iconLink.label}
-                </p>
-            </div>
-        </Button>
+            <div
+                className={
+                    'absolute top-1.5 -left-2 size-[15px] rounded-full border-3 border-background bg-ring'
+                }
+            />
+            <h3 className={'text-lg'}>{careerProps.company}</h3>
+            <h4 className={'text-md font-semibold'}>{careerProps.role}</h4>
+            <h4 className={'text-md font-semibold'}>{careerProps.period}</h4>
+            <p className={'pt-2'}>{careerProps.description}</p>
+        </div>
     );
 }

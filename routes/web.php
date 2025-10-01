@@ -11,6 +11,10 @@ Route::get('/career', function () {
     return Inertia::render('career');
 })->name('career');
 
+Route::get('/contact', function () {
+    return Inertia::render('contact');
+})->name('contact');
+
 //Route::middleware(['auth', 'verified'])->group(function () {
 //    Route::get('dashboard', function () {
 //        return Inertia::render('dashboard');

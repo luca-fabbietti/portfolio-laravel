@@ -51,13 +51,7 @@ const iconsLinks: IconLink[] = [
 export default function Home() {
     return (
         <>
-            <Head title="Welcome">
-                <link rel="preconnect" href="https://fonts.bunny.net" />
-                <link
-                    href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600"
-                    rel="stylesheet"
-                />
-            </Head>
+            <Head title="Welcome" />
             <PortfolioLayout>
                 <div
                     className={
@@ -134,7 +128,7 @@ export default function Home() {
     );
 }
 
-function IconLinkComponent({ iconLink: iconLink }: { iconLink: IconLink }) {
+function IconLinkComponent({ iconLink }: { iconLink: IconLink }) {
     return (
         <Button
             variant="outline"

@@ -18,7 +18,7 @@ const menuComponents: MenuComponent[] = [
     },
     {
         title: 'Contact',
-        href: '/',
+        href: '/contact',
     },
 ];
 

@@ -19,7 +19,7 @@ export default function Navbar({
             <NavigationMenuList>
                 {menuComponents.map((element: MenuComponent) => {
                     return (
-                        <NavigationMenuItem>
+                        <NavigationMenuItem key={element.title}>
                             <NavigationMenuLink
                                 asChild
                                 className={
