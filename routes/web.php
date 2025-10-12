@@ -40,12 +40,3 @@ Route::post('/contact', function (Request $request) {
     \Illuminate\Support\Facades\Mail::send(new ContactReceived($request->email, $request->text));
     return back()->with('success', 'Thanks for contacting us!');
 })->middleware('throttle:1,1');
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
-});
-
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
