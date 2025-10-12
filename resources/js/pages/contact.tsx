@@ -1,3 +1,4 @@
+import ContactForm from '@/components/contact-form';
 import PortfolioLayout from '@/layouts/portfolio-layout';
 import { Head } from '@inertiajs/react';
 import { CiMail } from 'react-icons/ci';
@@ -5,11 +6,11 @@ import { CiMail } from 'react-icons/ci';
 export default function Contact() {
     return (
         <>
-            <Head title="Welcome" />
+            <Head title="Contact me" />
             <PortfolioLayout>
                 <div
                     className={
-                        'flex flex-col items-start justify-center gap-4 py-20 text-left'
+                        'flex flex-col items-start justify-center gap-4 text-left'
                     }
                 >
                     <div className={'flex items-center justify-between gap-4'}>
@@ -21,6 +22,7 @@ export default function Contact() {
                         or collaborations. Open to new opportunities and
                         challenges.
                     </p>
+                    <ContactForm />
                 </div>
             </PortfolioLayout>
         </>

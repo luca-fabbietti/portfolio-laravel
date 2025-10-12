@@ -55,7 +55,7 @@ export default function Home() {
             <PortfolioLayout>
                 <div
                     className={
-                        'flex flex-col items-start justify-center gap-4 py-20 text-left'
+                        'flex flex-col items-start justify-center gap-4 text-left'
                     }
                 >
                     <div className={'flex items-center justify-center'}>
@@ -101,21 +101,29 @@ export default function Home() {
                         </Tooltip>
                     </div>
                     <div className={'flex items-center justify-center'}>
-                        <p
-                            className={
-                                'max-w-2xl text-lg font-medium text-muted-foreground'
-                            }
-                        >
-                            Hi, I’m Luca, a Back-end & DevOps Developer with 4+
-                            years of experience. I craft resilient services and
-                            design reliable databases to keep applications
-                            running smoothly. In DevOps, I manage systems,
-                            servers, containers, logs, and CI/CD pipelines,
-                            ensuring robust, seamless infrastructure. I’m
-                            passionate about building powerful, user-friendly
-                            products. Let’s connect and talk about our shared
-                            passion for creating beautiful digital experiences.
-                        </p>
+                        <div className="max-w-2xl space-y-4 text-lg font-medium text-muted-foreground">
+                            <p>
+                                Hi 👋! I’m Luca, a Backend Developer with over 4
+                                years of experience building scalable,
+                                high-performance web applications.
+                            </p>
+                            <p>
+                                I specialize in PHP and Laravel, designing
+                                robust architectures and crafting efficient,
+                                reliable databases that keep systems running
+                                smoothly. Beyond development, I manage servers,
+                                containers, CI/CD pipelines, and observability
+                                tools, ensuring stable and secure
+                                infrastructure.
+                            </p>
+                            <p>
+                                I’m passionate about creating elegant,
+                                user-focused digital products that blend
+                                technical excellence with great user experience.
+                                Let’s connect and collaborate on building
+                                something exceptional.
+                            </p>
+                        </div>
                     </div>
                     <div className={'flex items-center justify-center gap-4'}>
                         {iconsLinks.map((iconLink) => {

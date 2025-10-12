@@ -18,28 +18,24 @@ export default function Footer({
                     <span className={'ms-2 me-2'}>•</span> All rights reserved
                 </p>
             </div>
-            <div className={'hidden md:block'}>
+            <div className={'hidden items-center justify-center md:flex'}>
                 {menuComponents.map((menuComponent, index) => {
                     if (index < menuComponents.length - 1) {
                         return (
-                            <>
+                            <div key={index}>
                                 <MenuItem
                                     menuComponent={menuComponent}
                                     index={index}
                                 />
-                                <span
-                                    key={`separator-${index}`}
-                                    className={'ms-2 me-2'}
-                                >
-                                    •
-                                </span>
-                            </>
+                                <span className={'ms-2 me-2'}>•</span>
+                            </div>
                         );
                     } else {
                         return (
                             <MenuItem
                                 menuComponent={menuComponent}
                                 index={index}
+                                key={index}
                             />
                         );
                     }

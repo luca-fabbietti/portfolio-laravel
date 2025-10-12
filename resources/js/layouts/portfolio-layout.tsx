@@ -22,7 +22,7 @@ const menuComponents: MenuComponent[] = [
     },
 ];
 
-const columnClasses = ' px-4 md:px-20 lg:px-40 xl:px-80';
+const columnClasses = ' px-6 md:px-20 lg:px-40 xl:px-80';
 
 export default function PortfolioLayout({
     children,
@@ -31,7 +31,7 @@ export default function PortfolioLayout({
     return (
         <div
             {...props}
-            className={'flex h-dvh w-full flex-col justify-between'}
+            className={'flex h-full min-h-dvh w-full flex-col justify-between'}
         >
             <div
                 className={
@@ -47,7 +47,7 @@ export default function PortfolioLayout({
                     <AppearanceTabs />
                 </div>
             </div>
-            <div className={columnClasses}>{children}</div>
+            <main className={'py-10' + columnClasses}>{children}</main>
             <div className={'py-4' + columnClasses}>
                 <Footer menuComponents={menuComponents} />
             </div>

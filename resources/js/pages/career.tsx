@@ -9,50 +9,24 @@ interface CareerProps {
     description: string;
 }
 
-const careerData: CareerProps[] = [
-    {
-        company: 'Tech Solutions Inc.',
-        role: 'Software Engineer',
-        period: 'Jan 2020 - Present',
-        description:
-            'Developed and maintained web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.',
-    },
-    {
-        company: 'Tech Solutions Inc.',
-        role: 'Software Engineer',
-        period: 'Jan 2020 - Present',
-        description:
-            'Developed and maintained web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.',
-    },
-    {
-        company: 'Tech Solutions Inc.',
-        role: 'Software Engineer',
-        period: 'Jan 2020 - Present',
-        description:
-            'Developed and maintained web applications using React and Node.js. Collaborated with cross-functional teams to deliver high-quality software solutions.',
-    },
-];
-
-export default function Career() {
+export default function Career({ careers }: { careers: CareerProps[] }) {
     return (
         <>
-            <Head title="Welcome" />
+            <Head title="Career" />
             <PortfolioLayout>
                 <div
                     className={
-                        'flex flex-col items-start justify-center gap-4 py-20 text-left'
+                        'flex flex-col items-start justify-center gap-4 text-left'
                     }
                 >
                     <div className={'flex items-center justify-between gap-4'}>
                         <IoDocumentTextOutline className={'size-8'} />
                         <h1 className={'text-3xl font-bold'}>Career & Works</h1>
                     </div>
-                    {careerData.map((career) => (
-                        <CareerEntry
-                            key={career.company}
-                            careerProps={career}
-                        />
-                    ))}
+                    {careers &&
+                        careers.map((career: CareerProps, index: number) => (
+                            <CareerEntry key={index} careerProps={career} />
+                        ))}
                 </div>
             </PortfolioLayout>
         </>
