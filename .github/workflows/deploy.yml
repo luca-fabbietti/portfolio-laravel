@@ -4,71 +4,51 @@ on:
   push:
 #    branches: [ main ]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_PORTFOLIO: ${{ github.repository }}-portfolio
+
 jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
         with:
-          node-version: '22'
-          cache: 'npm'
+          path: ./node_modules
+          key: ${{ runner.os }}-node-modules-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+            ${{ runner.os }}-node-modules-${{ env.cache-name }}-
+            ${{ runner.os }}-node-modules-
 
-      - name: Setup PHP (with composer)
-        uses: shivammathur/setup-php@v2
+      - name: Cache composer dependencies
+        id: cache-composer
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-composer-dependencies
         with:
-          php-version: '8.4'
-          tools: composer
-          coverage: none
+          path: ./vendor
+          key: ${{ runner.os }}-composer-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
+            ${{ runner.os }}-composer-${{ env.cache-name }}-
+            ${{ runner.os }}-composer-
 
-      - name: Install PHP dependencies (vendor) in CI
+      - name: Rebuild .env from GitHub Secrets
         run: |
-          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-      - name: Install Node dependencies and build SSR assets
-        run: |
-          npm ci
-          npm run build:ssr
-
-      - name: Remove node_modules before upload
-        run: |
-          rm -rf node_modules
-
-      # Ensure rsync and ssh client are available on the runner
-      - name: Ensure rsync and SSH client are installed
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y rsync openssh-client
-
-      - name: Start ssh-agent and add key
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Sync repository to server (rsync vendor and build)
-        run: |
-          rsync -az --delete \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.idea' \
-            ./ ${{ secrets.DO_SSH_USER }}@${{ secrets.DO_SSH_HOST }}:${{ secrets.DO_APP_DIR }} -e "ssh -o StrictHostKeyChecking=no"
-
-      - name: Recreate .env and run remote deploy commands
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_SSH_USER }}@${{ secrets.DO_SSH_HOST }} <<'EOF'
-          set -e
-          cd ${{ secrets.DO_APP_DIR }}
-
-          # Ensure SQLite file exists
-          mkdir -p database
-          touch database/database.sqlite
-          chmod 664 database/database.sqlite || true
-
-          # Recreate .env from GitHub secrets / defaults
           cat > .env <<'ENVEND'
           APP_NAME="${{ secrets.APP_NAME }}"
           APP_ENV=production
@@ -124,12 +104,62 @@ jobs:
 
           ENVEND
 
-          # Run migrations and caches on server (vendor and build were uploaded from CI)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup PHP (with composer)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, bcmath, curl, zip, intl, mysql, gd, readline
+          tools: composer
+          coverage: none
+
+      - name: Install PHP dependencies (vendor) in CI
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Install Node dependencies and build SSR assets
+        run: |
+          npm ci
+          npm run build:ssr
+
+      - name: Launch migrations and optimizations
+        run: |
           php artisan migrate --force
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
 
-          # Adjust permissions if needed (update user/group as appropriate)
-          chown -R www-data:www-data .
-          EOF
+      - name: Remove node_modules before upload
+        run: |
+          rm -rf node_modules
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker Nginx
+        id: meta-portfolio
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_PORTFOLIO }}
+          tags: |
+            type=raw,value=${{ github.ref_name }}
+            type=raw,value=latest
+
+      - name: Build and push Docker image Nginx
+        id: push-portfolio
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          file: docker/prod/php-fpm/Dockerfile
+          push: true
+          tags: ${{ steps.meta-portfolio.outputs.tags }}
+          labels: ${{ steps.meta-portfolio.outputs.labels }}
