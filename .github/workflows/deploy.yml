@@ -1,8 +1,9 @@
 name: Deploy to DigitalOcean via SSH
 
 on:
-  tags:
-    - '*'
+  push:
+    tags:
+      - '*'
 
 env:
   REGISTRY: ghcr.io
