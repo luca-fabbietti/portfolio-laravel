@@ -2,7 +2,7 @@ name: Deploy to DigitalOcean via SSH
 
 on:
   push:
-    branches: [ main ]
+#    branches: [ main ]
 
 jobs:
   deploy:
@@ -37,6 +37,12 @@ jobs:
       - name: Remove node_modules before upload
         run: |
           rm -rf node_modules
+
+      # Ensure rsync and ssh client are available on the runner
+      - name: Ensure rsync and SSH client are installed
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y rsync openssh-client
 
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.1
