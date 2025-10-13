@@ -1,0 +1,129 @@
+name: Deploy to DigitalOcean via SSH
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup PHP (with composer)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer
+          coverage: none
+
+      - name: Install PHP dependencies (vendor) in CI
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Install Node dependencies and build SSR assets
+        run: |
+          npm ci
+          npm run build:ssr
+
+      - name: Remove node_modules before upload
+        run: |
+          rm -rf node_modules
+
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Sync repository to server (rsync vendor and build)
+        run: |
+          rsync -az --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.idea' \
+            ./ ${{ secrets.DO_SSH_USER }}@${{ secrets.DO_SSH_HOST }}:${{ secrets.DO_APP_DIR }} -e "ssh -o StrictHostKeyChecking=no"
+
+      - name: Recreate .env and run remote deploy commands
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.DO_SSH_USER }}@${{ secrets.DO_SSH_HOST }} <<'EOF'
+          set -e
+          cd ${{ secrets.DO_APP_DIR }}
+
+          # Ensure SQLite file exists
+          mkdir -p database
+          touch database/database.sqlite
+          chmod 664 database/database.sqlite || true
+
+          # Recreate .env from GitHub secrets / defaults
+          cat > .env <<'ENVEND'
+          APP_NAME="${{ secrets.APP_NAME }}"
+          APP_ENV=production
+          APP_KEY="${{ secrets.APP_KEY }}"
+          APP_DEBUG=false
+          APP_URL="${{ secrets.APP_URL }}"
+
+          APP_LOCALE=en
+          APP_FALLBACK_LOCALE=en
+          APP_FAKER_LOCALE=en_US
+
+          APP_MAINTENANCE_DRIVER=file
+          PHP_CLI_SERVER_WORKERS=4
+          BCRYPT_ROUNDS=12
+
+          LOG_CHANNEL=stack
+          LOG_STACK=single
+          LOG_DEPRECATIONS_CHANNEL=null
+          LOG_LEVEL=info
+
+          DB_CONNECTION=sqlite
+
+          SESSION_DRIVER=database
+          SESSION_LIFETIME=120
+          SESSION_ENCRYPT=false
+          SESSION_PATH=/
+          SESSION_DOMAIN=null
+
+          BROADCAST_CONNECTION=log
+          FILESYSTEM_DISK=local
+          QUEUE_CONNECTION=database
+
+          CACHE_STORE=database
+
+          MAIL_MAILER="smtp"
+          MAIL_SCHEME="smtps"
+          MAIL_HOST="${{ secrets.MAIL_HOST }}"
+          MAIL_PORT=${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}"
+          MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}"
+          MAIL_FROM_ADDRESS="${{ secrets.MAIL_FROM_ADDRESS }}"
+          MAIL_FROM_NAME="${{ secrets.APP_NAME }}"
+
+          ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}"
+          ADMIN_NAME="${{ secrets.ADMIN_NAME }}"
+
+          VITE_APP_NAME="${{ secrets.APP_NAME }}"
+
+          G_RECAPTCHA_SITE_KEY=${{ secrets.G_RECAPTCHA_SITE_KEY }}
+          G_RECAPTCHA_SECRET_KEY=${{ secrets.G_RECAPTCHA_SECRET_KEY }}
+
+          VITE_G_RECAPTCHA_SITE_KEY="${G_RECAPTCHA_SITE_KEY}"
+
+          ENVEND
+
+          # Run migrations and caches on server (vendor and build were uploaded from CI)
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+          # Adjust permissions if needed (update user/group as appropriate)
+          chown -R www-data:www-data .
+          EOF
