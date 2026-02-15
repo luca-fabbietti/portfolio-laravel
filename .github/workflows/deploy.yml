@@ -98,8 +98,8 @@ jobs:
 
           VITE_APP_NAME="${{ secrets.APP_NAME }}"
 
-          G_RECAPTCHA_SITE_KEY=${{ secrets.G_RECAPTCHA_SITE_KEY }}
-          G_RECAPTCHA_SECRET_KEY=${{ secrets.G_RECAPTCHA_SECRET_KEY }}
+          G_RECAPTCHA_SITE_KEY="${{ secrets.G_RECAPTCHA_SITE_KEY }}"
+          G_RECAPTCHA_SECRET_KEY="${{ secrets.G_RECAPTCHA_SECRET_KEY }}"
 
           VITE_G_RECAPTCHA_SITE_KEY="${G_RECAPTCHA_SITE_KEY}"
 
@@ -128,12 +128,12 @@ jobs:
           npm ci
           npm run build:ssr
 
-      - name: Launch migrations and optimizations
+      - name: Launch migrations
         run: |
           php artisan migrate --force
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
 
       - name: Remove node_modules before upload
         run: |
