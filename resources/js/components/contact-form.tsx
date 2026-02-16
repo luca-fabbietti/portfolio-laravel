@@ -15,6 +15,8 @@ import { router } from '@inertiajs/react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import AlertError from './alert-error';
+import AlertSuccess from './alert-success';
 
 const formSchema = z.object({
     email: z.email({
@@ -30,7 +32,7 @@ const formSchema = z.object({
     }),
 });
 
-export default function ContactForm() {
+export default function ContactForm({ errors, success }: { errors: string[], success: string }) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -47,7 +49,9 @@ export default function ContactForm() {
         router.post('/contact', values);
     }
 
-    return (
+    return (<>
+        {errors && errors.length > 0 && <AlertError errors={errors} />}
+        {success && <AlertSuccess success={success} />}
         <Form {...form}>
             <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -108,5 +112,6 @@ export default function ContactForm() {
                 <Button type="submit">Submit</Button>
             </form>
         </Form>
+    </>
     );
 }

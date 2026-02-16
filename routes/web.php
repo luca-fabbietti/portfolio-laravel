@@ -34,9 +34,16 @@ Route::post('/contact', function (Request $request) {
     ]);
 
     if (!($response->json()['success'] ?? false)) {
-        return back()->withErrors(['recaptcha' => 'reCAPTCHA verification failed.']);
+        return Inertia::render('contact')->with(['errors' => ['reCAPTCHA verification failed.']]);
     }
 
-    \Illuminate\Support\Facades\Mail::send(new ContactReceived($request->email, $request->text));
-    return back()->with('success', 'Thanks for contacting us!');
+    app()->terminating(function () use ($request) {
+        try {
+            \Illuminate\Support\Facades\Mail::send(new ContactReceived($request->email, $request->text));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Post-response contact mail failed', ['error' => $e->getMessage()]);
+        }
+    });
+
+    return Inertia::render('contact')->with(['success' => 'Thank you for contacting me!']);
 })->middleware('throttle:1,1');

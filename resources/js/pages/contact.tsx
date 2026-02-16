@@ -3,7 +3,8 @@ import PortfolioLayout from '@/layouts/portfolio-layout';
 import { Head } from '@inertiajs/react';
 import { CiMail } from 'react-icons/ci';
 
-export default function Contact() {
+export default function Contact({ errors, success }: { errors: string[], success: string }) {
+    console.log(errors, success);
     return (
         <>
             <Head title="Contact me" />
@@ -22,7 +23,7 @@ export default function Contact() {
                         or collaborations. Open to new opportunities and
                         challenges.
                     </p>
-                    <ContactForm />
+                    <ContactForm errors={errors} success={success} />
                 </div>
             </PortfolioLayout>
         </>
