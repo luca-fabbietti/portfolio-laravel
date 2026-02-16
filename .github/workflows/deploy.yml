@@ -101,7 +101,7 @@ jobs:
           G_RECAPTCHA_SITE_KEY="${{ secrets.G_RECAPTCHA_SITE_KEY }}"
           G_RECAPTCHA_SECRET_KEY="${{ secrets.G_RECAPTCHA_SECRET_KEY }}"
 
-          VITE_G_RECAPTCHA_SITE_KEY="${G_RECAPTCHA_SITE_KEY}"
+          VITE_G_RECAPTCHA_SITE_KEY="${{ secrets.G_RECAPTCHA_SITE_KEY }}"
 
           ENVEND
 
@@ -128,12 +128,13 @@ jobs:
           npm ci
           npm run build:ssr
 
-      - name: Launch migrations
+      - name: Launch migrations, seeding and clearing caches
         run: |
-          php artisan migrate --force
-          php artisan config:clear
-          php artisan route:clear
-          php artisan view:clear
+          php artisan migrate --force -q
+          php artisan db:seed --force -q
+          php artisan config:clear -q
+          php artisan route:clear -q
+          php artisan view:clear -q
 
       - name: Remove node_modules before upload
         run: |

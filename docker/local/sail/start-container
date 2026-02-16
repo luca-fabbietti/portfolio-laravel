@@ -15,6 +15,18 @@ fi
 
 chmod -R ugo+rw /.composer
 
+# Ensure bind-mounted writable paths are accessible by the runtime user.
+# SQLite sessions need write access to the database directory, not only the file.
+for path in /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database; do
+    if [ -d "$path" ]; then
+        chmod -R ugo+rwX "$path"
+    fi
+done
+
+if [ -f /var/www/html/database/database.sqlite ]; then
+    chmod ugo+rw /var/www/html/database/database.sqlite
+fi
+
 if [ $# -gt 0 ]; then
     if [ "$SUPERVISOR_PHP_USER" = "root" ]; then
         exec "$@"
